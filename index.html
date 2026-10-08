@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<title>Polytech Quest</title>
+<style>
+:root{--bg:#F2F2F7;--card:#fff;--tx:#000;--tx2:#8E8E93;--sep:#E5E5EA;--tint:#007AFF;--ok:#34C759;--bad:#FF3B30;--fill:#EFEFF4}
+html.dark{--bg:#000;--card:#1C1C1E;--tx:#fff;--sep:#2C2C2E;--tint:#0A84FF;--fill:#2C2C2E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,system-ui,Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+#app{max-width:760px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 100px)}
+h1{font-size:30px;margin:6px 0 10px}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.sub{color:var(--tx2);font-size:14px;margin:2px 0 8px}
+.pills{display:flex;gap:8px}.pill{background:var(--card);border:0;border-radius:20px;padding:6px 12px;font-weight:600;font-size:14px}
+.card{background:var(--card);border-radius:16px;padding:14px;margin:10px 0;line-height:1.5}
+.row{display:flex;justify-content:space-between;margin-bottom:8px}
+.bar{height:8px;background:var(--fill);border-radius:8px;overflow:hidden;flex:1}.bar i{display:block;height:100%;background:var(--tint);transition:width .3s}
+.seg{display:flex;background:var(--fill);border-radius:12px;padding:3px;margin:6px 0}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:10px;font-weight:600}
+.seg button.on{background:var(--card);box-shadow:0 1px 4px #0002}
+.unit{margin:18px 0}.ut{font-size:19px;font-weight:700}
+.les{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:0;border-radius:14px;padding:13px;margin:8px 0;text-align:left;font-size:16px}
+.les span:nth-child(2){flex:1}.ch{color:var(--tx2);font-size:22px}
+.dot{width:32px;height:32px;border-radius:50%;background:var(--fill);display:flex;align-items:center;justify-content:center;font-weight:700}
+.dot.ok{background:var(--ok);color:#fff}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;margin:12px 0;background:var(--card);font-size:17px;font-weight:600;text-align:center}
+.pri{background:var(--tint);color:#fff}
+.back{background:none;border:0;color:var(--tint);font-size:18px;padding:6px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.chip{background:var(--card);border-radius:10px;padding:8px 11px;font-size:14px;font-family:ui-monospace,Menlo,monospace}
+.rowx{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--sep)}.rowx:last-child{border:0}
+#tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 8px);background:color-mix(in srgb,var(--card) 85%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--sep)}
+#tabbar button{background:none;border:0;color:var(--tx2);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 22px}
+#tabbar button b{font-size:22px}#tabbar button.on{color:var(--tint)}
+#qz{position:fixed;inset:0;background:var(--bg);z-index:10;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 150px)}
+#qz[hidden]{display:none}
+.qtop{display:flex;align-items:center;gap:12px;max-width:760px;margin:0 auto}.x{background:none;border:0;font-size:22px;color:var(--tx2)}
+.qb{max-width:760px;margin:18px auto}.qq{font-size:21px;font-weight:700;margin-bottom:12px;line-height:1.35}
+pre{background:#0d1117;color:#e6edf3;padding:12px;border-radius:12px;overflow-x:auto;font-size:15px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--sep);border-radius:14px;padding:14px;margin:9px 0;font-size:17px}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--card))}
+.nrow{display:flex;align-items:center;gap:8px}.nrow input{flex:1;font-size:20px;padding:13px;border-radius:12px;border:2px solid var(--sep);background:var(--card);color:var(--tx)}
+#qf{position:fixed;left:0;right:0;bottom:0}.fb{padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 14px);background:var(--card);border-top:3px solid var(--ok)}.fb.badf{border-color:var(--bad)}
+.center{text-align:center}.big{font-size:70px}
+</style></head>
+<body>
+<div id="app"><div id="screen"></div></div>
+<div id="tabbar">
+<button data-t="learn" onclick="stopS();home()"><b>📚</b>Learn</button>
+<button data-t="formulas" onclick="formulas()"><b>🧮</b>Formulas</button>
+<button data-t="me" onclick="me()"><b>👤</b>Me</button>
+</div>
+<div id="qz" hidden></div>
+<script>
+var M=function(q,o,a,e,c){return{k:"m",q:q,o:o,a:a,e:e,c:c}};
+var T=function(q,a,e){return{k:"t",q:q,a:a,e:e}};
+var N=function(q,a,u,e,tol){return{k:"n",q:q,a:a,u:u,e:e,tol:tol||0.02}};
+var PI=["📏","➡️","🏃","🧱","⚙️","🔁","🔊","🔥","💧"],YI=["🐍","🧮","🔁","🚀"];
+var PY=[
+{id:"py1",t:"Python Basics",s:"Your first lines of code.",lessons:[
+ {id:"p1l1",t:"Print & Variables",p:["print() shows output on the screen, for example print(\"Hello\").","A variable stores a value: speed = 20. Use = to assign.","Comments start with # and are ignored by Python.","Names cannot start with a digit, contain spaces or hyphens, or be keywords like class."],
+  f:["print(\"Hello\")","speed = 20","# comment"],
+  q:[M("Which function prints text?",["echo()","print()","show()","write()"],1,"print() displays output."),
+     M("Which is a valid variable name?",["2speed","my-speed","my_speed","class"],2,"Names cannot start with a digit, contain '-', or be keywords."),
+     M("Output?",["5","6","x","Error"],1,"x becomes 6, then print shows 6.","x = 5\nx = x + 1\nprint(x)"),
+     T("A comment line starts with # in Python.",true,"Everything after # is ignored."),
+     M("What does = do in x = 5?",["Compares values","Assigns a value","Adds","Prints"],1,"= assigns. == compares.")]},
+ {id:"p1l2",t:"Data Types & Input",p:["Common types: int (5), float (3.14), str (\"hi\") and bool (True or False).","type(x) tells you the type of x.","input() always returns a string. Convert it with int() or float().","f-strings mix text and values: f\"v = {v}\"."],
+  f:["int(\"5\") → 5","float(\"2.5\") → 2.5","type(3.14) → float","f\"v = {v}\""],
+  q:[M("type(3.14) gives:",["int","float","str","bool"],1,"A number with a decimal point is a float."),
+     M("input() returns a value of type:",["int","float","str","bool"],2,"Always str. Use int(input()) for numbers."),
+     M("Output?",["52","7","'5'2","Error"],1,"int('5') is 5, so 5 + 2 = 7.","print(int('5') + 2)"),
+     T("True and False are of type bool.",true,"bool has exactly two values."),
+     M("Output?",["v = 10","v = {10}","10","Error"],0,"An f-string replaces {v} with its value.","v = 10\nprint(f\"v = {v}\")")]}
+]},
+{id:"py2",t:"Operators & Decisions",s:"Calculate, compare, choose.",lessons:[
+ {id:"p2l1",t:"Operators",p:["Arithmetic: + - * / (true division), // (floor division), % (remainder), ** (power).","/ always gives a float. // gives the floored result.","Order: ** first, then * / // %, then + -. Use brackets to control order.","Comparison operators (==, !=, <, >, <=, >=) give True or False."],
+  f:["7 // 2 → 3","7 % 2 → 1","2 ** 3 → 8","7 / 2 → 3.5"],
+  q:[N("Value of 7 // 2?",3,"","Floor division: 3.5 floored is 3.",0.01),
+     N("Value of 10 % 3?",1,"","10 = 3 × 3 + 1, so the remainder is 1.",0.01),
+     N("Value of 2 ** 3 + 1?",9,"","2 ** 3 = 8, plus 1 = 9.",0.01),
+     M("7 / 2 gives:",["3","3.5","4","Error"],1,"/ is true division and returns a float."),
+     T("5 == 5.0 is True in Python.",true,"== compares values, not types.")]},
+ {id:"p2l2",t:"if / elif / else",p:["if runs a block when its condition is True. The block is indented.","elif checks another condition. else runs when nothing matched.","Combine conditions with and, or, not.","Wrong indentation causes an IndentationError."],
+  f:["if x > 3:","elif x == 3:","else:","a and b / a or b / not a"],
+  q:[M("Output?",["A","B","AB","Error"],0,"5 > 3 is True, so A prints.","x = 5\nif x > 3:\n    print(\"A\")\nelse:\n    print(\"B\")"),
+     M("Output?",["True","False","Error","None"],1,"and needs both sides True. 2 > 4 is False.","print(5 > 3 and 2 > 4)"),
+     M("Which keyword checks a second condition?",["elseif","else if","elif","then"],2,"Python uses elif."),
+     T("Indentation matters in Python.",true,"Indented lines form the block under if, for, while and def."),
+     M("Output?",["Pass","Fail","Error","Nothing"],0,"40 >= 35 is True.","marks = 40\nif marks >= 35:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")")]}
+]},
+{id:"py3",t:"Loops & Functions",s:"Repeat and reuse.",lessons:[
+ {id:"p3l1",t:"Loops",p:["for repeats over a sequence: for i in range(3) gives 0, 1, 2.","range(a, b) starts at a and stops before b. range(1, 4) gives 1, 2, 3.","while repeats as long as its condition is True. Change the variable or it loops forever.","break exits a loop early. continue skips to the next round."],
+  f:["for i in range(n):","range(1, 4) → 1, 2, 3","while cond:","break / continue"],
+  q:[N("How many times does for i in range(5) run?",5,"","range(5) gives 0 to 4: five values.",0.01),
+     M("Output?",["3","6","10","4"],1,"1 + 2 + 3 = 6.","s = 0\nfor i in range(1, 4):\n    s += i\nprint(s)"),
+     M("Output?",["2","3","4","Infinite loop"],1,"The loop stops when i reaches 3.","i = 0\nwhile i < 3:\n    i += 1\nprint(i)"),
+     T("A while loop whose condition never becomes False runs forever.",true,"Always update the loop variable."),
+     M("What does break do?",["Skips one round","Exits the loop","Restarts the loop","Ends the program"],1,"break leaves the nearest loop immediately.")]},
+ {id:"p3l2",t:"Functions & Lists",p:["def creates a function: def sq(x): return x * x.","return sends a value back to the caller.","A list holds many values: nums = [1, 2, 3]. Index starts at 0 and -1 is the last item.","Useful: len(nums), nums.append(4), sum(nums), max(nums)."],
+  f:["def f(x): return x*x","nums[0], nums[-1]","nums.append(4)","len(nums), sum(nums)"],
+  q:[M("Output?",["8","16","4","Error"],1,"sq(4) returns 16.","def sq(x):\n    return x * x\nprint(sq(4))"),
+     M("Output?",["1","2","3","Error"],2,"-1 is the last element.","nums = [1, 2, 3]\nprint(nums[-1])"),
+     N("len([4, 8, 15, 16]) = ?",4,"","len counts the items.",0.01),
+     N("sum([1, 2, 3, 4]) = ?",10,"","1 + 2 + 3 + 4 = 10.",0.01),
+     M("Which keyword defines a function?",["func","function","def","define"],2,"Use def.")]}
+]},
+{id:"py4",t:"Physics in Python",s:"Turn formulas into code.",lessons:[
+ {id:"p4l1",t:"Formulas in Code",p:["Write formulas with * for multiplication: v = u + a * t.","Powers use **: s = u*t + 0.5*a*t**2.","import math gives math.sqrt(), math.sin() and math.pi. Angles must be in radians.","round(x, 2) rounds to 2 decimals."],
+  f:["v = u + a*t","s = u*t + 0.5*a*t**2","import math","math.sqrt(x)"],
+  q:[M("Which line correctly computes v = u + at?",["v = u + a t","v = u + a*t","v == u + a*t","v := u a t"],1,"Python needs * and a single = for assignment."),
+     M("Output?",["9.0","18.0","6.0","12.0"],0,"0.5 × 2 × 9 = 9.0. ** runs before *.","m = 2\nv = 3\nprint(0.5 * m * v**2)"),
+     M("Output?",["7.0","5.0","25.0","12.0"],1,"√(9 + 16) = 5.0.","import math\nprint(math.sqrt(3**2 + 4**2))"),
+     N("u = 0, a = 2, t = 5 in v = u + a*t. What is v?",10,"m/s","0 + 2 × 5 = 10.",0.01),
+     M("Output?",["3.14","3.1","3.142","3"],0,"round(x, 2) keeps two decimals.","print(round(3.14159, 2))")]}
+]}
+];
+var U=[
+{id:"u1",t:"Units & Dimensions",s:"Measure it, then check it.",lessons:[
+ {id:"u1l1",t:"SI Units",p:["Every measurement is a number times a unit, like 5 m or 3 s.","SI has 7 base units: metre (m), kilogram (kg), second (s), ampere (A), kelvin (K), mole (mol) and candela (cd).","Radian (plane angle) and steradian (solid angle) are the supplementary units.","Derived units are built from base units: newton, joule, watt, pascal."],
+  f:["1 km = 1000 m","1 N = 1 kg·m/s²","1 J = 1 N·m","1 W = 1 J/s","1 Pa = 1 N/m²"],
+  q:[M("What is the SI unit of mass?",["gram","kilogram","pound","quintal"],1,"The kilogram is the SI base unit of mass."),
+     M("Which of these is NOT a fundamental SI quantity?",["Length","Time","Force","Temperature"],2,"Force is derived: 1 N = 1 kg·m/s²."),
+     T("The radian is the SI unit of plane angle.",true,"Yes. Radian is a supplementary SI unit for plane angle."),
+     M("How many base units does SI have?",["5","6","7","9"],2,"Metre, kilogram, second, ampere, kelvin, mole and candela."),
+     M("The SI base unit of luminous intensity is:",["lumen","lux","candela","watt"],2,"Candela (cd) is the base unit. Lumen and lux are derived."),
+     N("Convert 5 km into metres.",5000,"m","1 km = 1000 m, so 5 × 1000 = 5000 m.")]},
+ {id:"u1l2",t:"Dimensions",p:["Dimensions show which base quantities a quantity is made of: mass [M], length [L], time [T].","Velocity is length/time, so its dimensions are [L T⁻¹].","Force is mass × acceleration, so [M L T⁻²].","Angle, strain and refractive index have no dimensions."],
+  f:["Velocity [L T⁻¹]","Acceleration [L T⁻²]","Force [M L T⁻²]","Work, energy [M L² T⁻²]","Pressure [M L⁻¹ T⁻²]","Density [M L⁻³]"],
+  q:[M("Dimensional formula of velocity:",["[L T⁻¹]","[L T⁻²]","[M L T⁻¹]","[L² T⁻¹]"],0,"Velocity = length / time."),
+     M("Dimensional formula of force:",["[M L T⁻¹]","[M L T⁻²]","[M L² T⁻²]","[M L⁻¹ T⁻²]"],1,"Force = mass × acceleration = M × L T⁻²."),
+     M("Dimensional formula of work or energy:",["[M L T⁻²]","[M L² T⁻¹]","[M L² T⁻²]","[M L⁻¹ T⁻²]"],2,"Work = force × distance = [M L T⁻²][L]."),
+     T("Strain has no dimensions.",true,"Strain is a ratio of two lengths, so it is dimensionless."),
+     M("Dimensional formula of pressure:",["[M L⁻¹ T⁻²]","[M L T⁻²]","[M L² T⁻²]","[M L⁻³]"],0,"Pressure = force / area = [M L T⁻²] / [L²]."),
+     M("Dimensional formula of density:",["[M L³]","[M L⁻³]","[M L⁻²]","[M⁻¹ L³]"],1,"Density = mass / volume.")]},
+ {id:"u1l3",t:"Using Dimensions",p:["Principle of homogeneity: every term in a correct equation has the same dimensions.","Uses: check an equation, derive a relation, convert units.","Limits: it cannot give numerical constants, and it fails for sin, log or exp functions."],
+  f:["Homogeneity: [LHS] = [RHS]","T = k·l^a·g^b gives a = ½, b = −½"],
+  q:[M("The principle of homogeneity says:",["Both sides of an equation have the same dimensions","Units must be in SI","All terms are scalars","Every quantity is dimensionless"],0,"Each term on both sides must have equal dimensions."),
+     T("The equation v = u + at is dimensionally correct.",true,"Each term has dimensions [L T⁻¹]."),
+     M("What can dimensional analysis NOT give?",["A check of an equation","Unit conversion","The value of a dimensionless constant like 2π","A relation between quantities"],2,"Pure numbers such as 2π are invisible to dimensions."),
+     T("Dimensional analysis can derive formulas that contain sin or exp functions.",false,"It fails for trigonometric, log and exponential relations."),
+     N("T = k·l^a·g^b for a simple pendulum. Find a.",0.5,"","[T] = [L]^a[L T⁻²]^b gives b = −½ and a = ½.",0.01),
+     M("Dimensional formula of frequency:",["[T]","[T⁻¹]","[L T⁻¹]","[T²]"],1,"Frequency = 1 / time.")]}
+]},
+{id:"u2",t:"Elements of Vectors",s:"Quantities that need a direction.",lessons:[
+ {id:"u2l1",t:"Scalars & Vectors",p:["A scalar has only magnitude: mass, time, speed, distance, energy, work.","A vector has magnitude and direction: displacement, velocity, acceleration, force, momentum.","A unit vector has magnitude 1 and only shows direction."],
+  f:["|A| = √(Ax² + Ay²)","Unit vector Â = A / |A|"],
+  q:[M("Which of these is a vector?",["Speed","Mass","Velocity","Time"],2,"Velocity has both magnitude and direction."),
+     M("Which of these is a scalar?",["Force","Work","Momentum","Displacement"],1,"Work has magnitude only."),
+     T("Displacement is a vector quantity.",true,"It has a size and a direction."),
+     N("What is the magnitude of a unit vector?",1,"","A unit vector always has magnitude 1.",0.01),
+     T("Speed and velocity are both vectors.",false,"Speed is a scalar. Velocity is a vector."),
+     N("Find the magnitude of the vector 3î + 4ĵ.",5,"","√(3² + 4²) = √25 = 5.",0.01)]},
+ {id:"u2l2",t:"Adding Vectors",p:["Triangle law: place the tail of B at the head of A. The resultant joins the free ends.","Parallelogram law: the diagonal from the common point is the resultant.","Same direction gives A + B. Opposite gives A − B. Perpendicular gives √(A² + B²)."],
+  f:["R = √(A² + B² + 2AB cosθ)","tan α = B sinθ / (A + B cosθ)","Rmax = A + B (θ = 0°)","Rmin = A − B (θ = 180°)"],
+  q:[N("Forces of 3 N and 4 N act at 90°. Find the resultant.",5,"N","R = √(3² + 4²) = 5 N.",0.01),
+     N("Maximum resultant of 6 N and 8 N forces?",14,"N","Maximum occurs at 0°: 6 + 8 = 14 N.",0.01),
+     N("Minimum resultant of 6 N and 8 N forces?",2,"N","Minimum occurs at 180°: 8 − 6 = 2 N.",0.01),
+     M("Which law gives the resultant of two vectors from a common point?",["Parallelogram law","Newton's first law","Hooke's law","Ohm's law"],0,"The diagonal of the parallelogram is the resultant."),
+     T("Vector addition is commutative: A + B = B + A.",true,"The order does not change the resultant."),
+     M("Two equal forces F act at 120°. The resultant is:",["2F","F","F/2","0"],1,"R = √(F² + F² + 2F² cos120°) = √(2F² − F²) = F.")]},
+ {id:"u2l3",t:"Resolving & Products",p:["Resolving splits a vector into perpendicular components.","The dot product gives a scalar. The cross product gives a vector perpendicular to both.","Work = F·d (dot). Torque = r × F (cross)."],
+  f:["Ax = A cosθ, Ay = A sinθ","A·B = AB cosθ","|A × B| = AB sinθ","î·î = 1, î·ĵ = 0, î×ĵ = k̂"],
+  q:[N("Horizontal component of a 10 N force at 60° to the horizontal?",5,"N","10 cos60° = 10 × 0.5 = 5 N.",0.01),
+     N("Vertical component of a 10 N force at 30° to the horizontal?",5,"N","10 sin30° = 5 N.",0.01),
+     M("The dot product of two vectors is a:",["scalar","vector","unit vector","null vector"],0,"A·B = AB cosθ is a number."),
+     M("The cross product of two parallel vectors is:",["maximum","a scalar","zero","1"],2,"sin0° = 0, so A × B = 0."),
+     T("Work done is the dot product of force and displacement.",true,"W = F·d = Fd cosθ."),
+     N("A = 2, B = 3 and the angle between them is 60°. Find A·B.",3,"","A·B = 2 × 3 × cos60° = 3.",0.01)]}
+]},
+{id:"u3",t:"Kinematics",s:"Describe motion without asking why.",lessons:[
+ {id:"u3l1",t:"Straight-line Motion",p:["Distance is path length (scalar). Displacement is the straight-line change in position (vector).","Speed = distance / time. Velocity = displacement / time.","Acceleration is the rate of change of velocity.","For constant acceleration use the three equations of motion."],
+  f:["v = u + at","s = ut + ½at²","v² = u² + 2as","s_n = u + a(2n − 1)/2"],
+  q:[N("A car covers 60 km in 2 hours. Find its average speed.",30,"km/h","Speed = 60 / 2 = 30 km/h.",0.01),
+     N("Starting from rest with a = 2 m/s², find v after 5 s.",10,"m/s","v = u + at = 0 + 2 × 5 = 10 m/s.",0.01),
+     N("u = 0, a = 4 m/s², t = 3 s. Find the distance s.",18,"m","s = ½at² = ½ × 4 × 9 = 18 m.",0.01),
+     N("u = 0, a = 5 m/s², s = 10 m. Find v.",10,"m/s","v² = 2as = 100, so v = 10 m/s.",0.01),
+     T("Displacement can be zero even when distance is not zero.",true,"Example: walk round a track and return to the start."),
+     M("The SI unit of acceleration is:",["m/s","m/s²","m²/s","N"],1,"Acceleration = velocity / time.")]},
+ {id:"u3l2",t:"Free Fall",p:["Free fall is motion under gravity alone: a = g ≈ 9.8 m/s² downward. Use g = 10 m/s² for quick work.","Thrown upward, speed drops to zero at the top, then the body comes back.","In vacuum, all bodies fall with the same acceleration."],
+  f:["v = gt (from rest)","h = ½gt²","H = u² / 2g","Time of flight = 2u / g"],
+  q:[N("A ball is dropped from rest. Find its speed after 3 s (g = 10 m/s²).",30,"m/s","v = gt = 10 × 3 = 30 m/s.",0.01),
+     N("Distance fallen from rest in 2 s (g = 10 m/s²)?",20,"m","h = ½gt² = ½ × 10 × 4 = 20 m.",0.01),
+     N("A ball is thrown up at 20 m/s. Find its maximum height (g = 10 m/s²).",20,"m","H = u²/2g = 400 / 20 = 20 m.",0.01),
+     M("At the highest point of a ball thrown upward, its velocity is:",["maximum","zero","equal to g","negative of u"],1,"The ball momentarily stops before falling back."),
+     T("In vacuum, a heavier body falls faster than a lighter one.",false,"All bodies fall with the same acceleration g in vacuum."),
+     N("Time of flight for u = 20 m/s upward (g = 10 m/s²)?",4,"s","T = 2u/g = 40 / 10 = 4 s.",0.01)]},
+ {id:"u3l3",t:"Projectile Motion",p:["A projectile has a constant horizontal velocity and a vertical motion under gravity.","Initial vertical speed is u sinθ. Initial horizontal speed is u cosθ.","Maximum range is at 45°. Angles θ and (90° − θ) give the same range."],
+  f:["T = 2u sinθ / g","H = u² sin²θ / 2g","R = u² sin2θ / g","Rmax = u² / g at 45°"],
+  q:[N("At what angle (in degrees) is the range of a projectile maximum?",45,"°","R ∝ sin2θ, which is maximum when 2θ = 90°.",0.01),
+     M("During projectile motion, the horizontal velocity:",["increases","decreases","stays constant","becomes zero at the top"],2,"No horizontal force acts, ignoring air resistance."),
+     N("u = 20 m/s, θ = 30°, g = 10 m/s². Find the time of flight.",2,"s","T = 2u sinθ / g = 2 × 20 × 0.5 / 10 = 2 s.",0.01),
+     N("u = 10 m/s, θ = 45°, g = 10 m/s². Find the range.",10,"m","R = u² sin90° / g = 100 / 10 = 10 m.",0.01),
+     T("Projectiles launched at 30° and 60° with the same speed have the same range.",true,"θ and (90° − θ) give equal ranges."),
+     M("At the top of its path, the acceleration of a projectile is:",["zero","g, downward","g, upward","u sinθ"],1,"Gravity acts all through the flight.")]}
+]},
+{id:"u4",t:"Friction",s:"The force that opposes sliding.",lessons:[
+ {id:"u4l1",t:"Types of Friction",p:["Friction opposes relative motion between surfaces in contact.","Static friction acts before motion starts. Kinetic (sliding) friction acts during sliding. Rolling friction acts on rolling bodies.","Limiting friction is the maximum static friction.","Order: static > kinetic > rolling."],
+  f:["f_s(max) > f_k > f_r"],
+  q:[M("Which friction is the smallest?",["Static","Sliding","Rolling","Limiting"],2,"Rolling friction is far less than sliding friction."),
+     M("Friction acts:",["along the motion","opposite to the (impending) motion","perpendicular to the surface","only in liquids"],1,"It opposes relative motion."),
+     T("Limiting friction is greater than kinetic friction.",true,"Static friction at its limit exceeds sliding friction."),
+     M("Limiting friction is:",["friction during rolling","the maximum value of static friction","friction in fluids","zero friction"],1,"It is the largest friction before sliding begins."),
+     M("Ball bearings are used to:",["increase friction","replace sliding with rolling","reduce mass","increase wear"],1,"Rolling friction is much smaller."),
+     T("Friction is always harmful.",false,"We could not walk or brake a vehicle without it.")]},
+ {id:"u4l2",t:"Coefficient of Friction",p:["Limiting friction is proportional to the normal reaction: F = μN.","On level ground, N = mg.","Angle of friction λ: tan λ = μ. Angle of repose θ: tan θ = μ.","Friction does not depend on the apparent area of contact."],
+  f:["F = μN","N = mg (level ground)","tan λ = μ","tan θ = μ (angle of repose)"],
+  q:[N("μ = 0.3, m = 10 kg, g = 10 m/s². Find the limiting friction.",30,"N","F = μmg = 0.3 × 100 = 30 N.",0.01),
+     M("The coefficient of friction has:",["unit N","unit kg","no unit","unit N/m"],2,"μ = F / N is a ratio of two forces."),
+     N("F = 20 N and N = 50 N. Find μ.",0.4,"","μ = 20 / 50 = 0.4.",0.01),
+     N("Find the angle of repose (degrees) if μ = 1.",45,"°","tan θ = 1, so θ = 45°.",0.01),
+     T("For solids, friction depends strongly on the apparent area of contact.",false,"It is nearly independent of apparent contact area."),
+     N("Normal reaction on a 5 kg block on level ground (g = 10 m/s²)?",50,"N","N = mg = 5 × 10 = 50 N.",0.01)]},
+ {id:"u4l3",t:"Inclined Plane",p:["On an incline of angle θ the weight splits into mg sinθ (down the slope) and mg cosθ (into the surface).","Normal reaction N = mg cosθ.","The block just slides when tanθ = μ.","Reduce friction with lubricants, polishing and bearings."],
+  f:["N = mg cosθ","Down-slope force = mg sinθ","a = g(sinθ − μ cosθ)","μ = tanθ at the point of sliding"],
+  q:[M("Normal reaction on a block on an incline is:",["mg sinθ","mg cosθ","mg","mg tanθ"],1,"The perpendicular component of weight."),
+     N("m = 2 kg, θ = 30°, g = 10 m/s². Find mg sinθ.",10,"N","2 × 10 × 0.5 = 10 N.",0.01),
+     N("Acceleration on a smooth 30° incline (g = 10 m/s²)?",5,"m/s²","a = g sinθ = 10 × 0.5 = 5 m/s².",0.01),
+     N("A block just starts sliding at θ = 45°. Find μ.",1,"","μ = tan45° = 1.",0.01),
+     T("As the incline gets steeper, the normal reaction decreases.",true,"cosθ falls as θ rises."),
+     M("Which of these reduces friction?",["Lubrication","Roughening surfaces","Adding load","Increasing contact area"],0,"A lubricant forms a thin layer between surfaces.")]}
+]},
+{id:"u5",t:"Work, Power & Energy",s:"How force turns into motion.",lessons:[
+ {id:"u5l1",t:"Work",p:["Work is force times displacement in the direction of the force.","SI unit is the joule (J). 1 J = 1 N·m.","Work is zero when force is perpendicular to displacement, such as centripetal force."],
+  f:["W = F d cosθ","1 J = 1 N·m"],
+  q:[N("F = 10 N, d = 5 m, θ = 0°. Find the work done.",50,"J","W = Fd cos0° = 50 J.",0.01),
+     N("F = 10 N, d = 5 m, θ = 90°. Find the work done.",0,"J","cos90° = 0, so no work is done.",0.01),
+     M("The SI unit of work is:",["newton","watt","joule","pascal"],2,"1 joule = 1 newton × 1 metre."),
+     T("Work done by the centripetal force on a body in circular motion is zero.",true,"The force is perpendicular to the motion."),
+     M("1 joule equals:",["1 N × 1 m","1 N / 1 m","1 kg × 1 m","1 W × 1 m"],0,"Work = force × distance."),
+     N("F = 20 N, d = 3 m, θ = 60°. Find the work done.",30,"J","W = 20 × 3 × cos60° = 30 J.",0.01)]},
+ {id:"u5l2",t:"Energy",p:["Kinetic energy is energy of motion. Potential energy is energy of position.","Work-energy theorem: net work done = change in kinetic energy.","Without friction, total mechanical energy stays constant."],
+  f:["KE = ½mv²","PE = mgh","W = ΔKE","v = √(2gh) (free fall)"],
+  q:[N("m = 2 kg, v = 3 m/s. Find the kinetic energy.",9,"J","KE = ½ × 2 × 9 = 9 J.",0.01),
+     N("m = 5 kg, h = 10 m, g = 10 m/s². Find the potential energy.",500,"J","PE = mgh = 5 × 10 × 10 = 500 J.",0.01),
+     M("If the speed of a body doubles, its kinetic energy becomes:",["2 times","3 times","4 times","8 times"],2,"KE ∝ v²."),
+     T("In free fall (no air resistance), total mechanical energy remains constant.",true,"PE converts into KE."),
+     N("A body falls from 20 m (g = 10 m/s²). Find its speed at the ground.",20,"m/s","v = √(2gh) = √400 = 20 m/s.",0.01),
+     M("The work-energy theorem states that work done equals:",["change in potential energy","change in kinetic energy","force × time","power × distance"],1,"W = ΔKE.")]},
+ {id:"u5l3",t:"Power & Efficiency",p:["Power is the rate of doing work. SI unit is the watt.","1 horsepower = 746 W.","Efficiency = output / input × 100%.","The kilowatt-hour (kWh) is a unit of energy."],
+  f:["P = W / t","P = F v","1 hp = 746 W","η = (output / input) × 100%","1 kWh = 3.6 × 10⁶ J"],
+  q:[N("W = 1000 J in t = 10 s. Find the power.",100,"W","P = 1000 / 10 = 100 W.",0.01),
+     N("1 horsepower equals how many watts?",746,"W","1 hp = 746 W.",0.01),
+     N("F = 50 N and v = 4 m/s. Find the power.",200,"W","P = Fv = 200 W.",0.01),
+     T("The kilowatt-hour is a unit of energy.",true,"1 kWh = 1 kW × 1 h = 3.6 × 10⁶ J."),
+     N("A machine takes 500 W and gives 400 W. Find its efficiency.",80,"%","η = 400/500 × 100 = 80%.",0.01),
+     N("A 2 kW heater runs for 3 hours. Energy used?",6,"kWh","2 kW × 3 h = 6 kWh.",0.01)]}
+]},
+{id:"u6",t:"Simple Harmonic Motion",s:"Back and forth, in perfect rhythm.",lessons:[
+ {id:"u6l1",t:"Oscillations",p:["An oscillation repeats about a mean position.","In SHM the acceleration is proportional to displacement and always points to the mean position: a = −ω²x.","Frequency f = 1 / T. Angular frequency ω = 2πf."],
+  f:["f = 1 / T","ω = 2πf = 2π / T","a = −ω²x"],
+  q:[N("Time period T = 0.5 s. Find the frequency.",2,"Hz","f = 1 / T = 2 Hz.",0.01),
+     M("The SI unit of frequency is:",["second","hertz","metre","radian"],1,"1 Hz = 1 cycle per second."),
+     N("Find ω for f = 1 Hz (take π = 3.14).",6.28,"rad/s","ω = 2πf = 6.28 rad/s.",0.01),
+     M("In SHM, acceleration is:",["constant","proportional to displacement and opposite in direction","proportional to velocity","always zero"],1,"a = −ω²x."),
+     T("The swinging of a pendulum bob is periodic motion.",true,"It repeats at regular intervals."),
+     M("At the mean position in SHM, the speed is:",["zero","maximum","half of maximum","infinite"],1,"All energy is kinetic there.")]},
+ {id:"u6l2",t:"Equations of SHM",p:["Displacement: y = A sin(ωt).","Velocity: v = ω√(A² − y²). Maximum at the mean position, equal to Aω.","Maximum acceleration is Aω², at the extreme positions.","Total energy ∝ A²."],
+  f:["y = A sin ωt","v = ω√(A² − y²)","vmax = Aω","amax = Aω²","E = ½mω²A²"],
+  q:[N("A = 0.1 m and ω = 10 rad/s. Find vmax.",1,"m/s","vmax = Aω = 1 m/s.",0.01),
+     N("A = 0.1 m and ω = 10 rad/s. Find amax.",10,"m/s²","amax = Aω² = 0.1 × 100 = 10 m/s².",0.01),
+     M("At an extreme position of SHM, the velocity is:",["maximum","zero","Aω","ω"],1,"The body reverses direction there."),
+     T("Total energy of a particle in SHM is proportional to the square of the amplitude.",true,"E = ½mω²A²."),
+     M("For y = A sin ωt, the displacement at t = 0 is:",["A","−A","0","A/2"],2,"sin0 = 0."),
+     M("At an extreme position, acceleration is:",["zero","maximum","half of maximum","constant"],1,"a = −ω²x is largest when x = A.")]},
+ {id:"u6l3",t:"Pendulum & Spring",p:["Simple pendulum: T = 2π√(l/g). It does not depend on mass or (for small swings) amplitude.","Spring-mass: T = 2π√(m/k).","A seconds pendulum has T = 2 s and a length of about 1 m."],
+  f:["T = 2π√(l / g)","T = 2π√(m / k)","Seconds pendulum: T = 2 s"],
+  q:[M("The time period of a simple pendulum depends on:",["mass of bob","length and g","amplitude only","material of bob"],1,"T = 2π√(l/g)."),
+     M("If the length of a pendulum is made 4 times, T becomes:",["2 times","4 times","½","same"],0,"T ∝ √l."),
+     N("The time period of a seconds pendulum is:",2,"s","By definition, T = 2 s.",0.01),
+     T("The time period of a simple pendulum depends on the mass of the bob.",false,"Mass cancels out."),
+     M("The mass on a spring is made 4 times. T becomes:",["2 times","4 times","½","same"],0,"T ∝ √m."),
+     M("On the Moon (smaller g), a pendulum's time period:",["decreases","increases","stays same","becomes zero"],1,"T ∝ 1/√g.")]}
+]},
+{id:"u7",t:"Sound",s:"Waves you can hear.",lessons:[
+ {id:"u7l1",t:"Sound Waves",p:["Sound is a mechanical, longitudinal wave. It needs a medium.","Speed in air is about 340 m/s. Solids carry sound faster than liquids, liquids faster than gases.","Audible range: 20 Hz to 20 kHz. Below is infrasonic, above is ultrasonic."],
+  f:["v = fλ","Audible range: 20 Hz – 20 kHz"],
+  q:[M("Sound waves are:",["transverse","longitudinal","electromagnetic","both transverse and longitudinal"],1,"Particles vibrate along the direction of travel."),
+     T("Sound can travel through vacuum.",false,"It needs a material medium."),
+     M("The audible range for humans is about:",["2 Hz – 2 kHz","20 Hz – 20 kHz","200 Hz – 200 kHz","20 kHz – 200 kHz"],1,"Outside it we get infrasonic or ultrasonic sound."),
+     N("f = 500 Hz and λ = 0.68 m. Find the speed of sound.",340,"m/s","v = fλ = 500 × 0.68 = 340 m/s.",0.01),
+     M("Sound travels fastest in:",["air","water","steel","vacuum"],2,"Solids are the best conductors of sound."),
+     M("Ultrasonic waves have frequency:",["below 20 Hz","between 20 Hz and 20 kHz","above 20 kHz","exactly 20 kHz"],2,"They are above the audible range.")]},
+ {id:"u7l2",t:"Characteristics of Sound",p:["Loudness depends on amplitude (intensity). Pitch depends on frequency. Timbre (quality) depends on waveform.","Sound level is measured in decibels.","A tenfold increase in intensity adds 10 dB."],
+  f:["β = 10 log₁₀(I / I₀)","I₀ = 10⁻¹² W/m²"],
+  q:[M("Pitch of a sound depends on its:",["amplitude","frequency","speed","medium only"],1,"Higher frequency means higher pitch."),
+     M("Loudness of a sound depends mainly on:",["frequency","amplitude","wavelength","timbre"],1,"Bigger amplitude means higher intensity."),
+     M("Timbre helps us tell apart:",["two notes of different pitch","a guitar and a flute playing the same note","a near and a far source","echo and reverberation"],1,"Timbre depends on the waveform."),
+     M("The unit of sound level is:",["hertz","decibel","watt","pascal"],1,"Written dB."),
+     N("Intensity rises by a factor of 10. By how many dB does the level rise?",10,"dB","β = 10 log₁₀(10) = 10 dB.",0.01),
+     T("A higher-frequency sound has a higher pitch.",true,"Pitch tracks frequency.")]},
+ {id:"u7l3",t:"Echo & Doppler Effect",p:["An echo needs the reflecting surface at least 17 m away, since the ear holds a sound for 0.1 s.","Reverberation comes from repeated reflections in a hall.","Doppler effect: apparent frequency changes with relative motion. Approach raises it, recession lowers it.","SONAR uses ultrasound."],
+  f:["d = v t / 2","Min. echo distance ≈ 17 m"],
+  q:[N("An echo returns after 2 s. With v = 340 m/s, find the distance to the wall.",340,"m","d = vt/2 = 340 × 2 / 2 = 340 m.",0.01),
+     N("Minimum distance to hear a distinct echo (v = 340 m/s)?",17,"m","d = 340 × 0.1 / 2 = 17 m.",0.01),
+     M("The Doppler effect is:",["a change in speed of sound","an apparent change in frequency due to relative motion","a change in loudness due to distance","reflection of sound"],1,"Source and observer move relative to each other."),
+     M("A source moving toward you sounds:",["lower in pitch","higher in pitch","the same","silent"],1,"Waves get compressed."),
+     T("Reverberation is caused by repeated reflections of sound.",true,"It makes a sound linger in a hall."),
+     M("SONAR uses:",["radio waves","ultrasonic waves","infrasonic waves","light"],1,"Ultrasound pulses locate underwater objects.")]}
+]},
+{id:"u8",t:"Heat & Thermodynamics",s:"Energy on the move.",lessons:[
+ {id:"u8l1",t:"Temperature & Heat",p:["Temperature shows how hot a body is. Heat is energy transferred because of a temperature difference.","Scales: Celsius, Fahrenheit, Kelvin.","Heat needed: Q = mcΔT. Water has c ≈ 4200 J/kg·K."],
+  f:["K = °C + 273","°F = (9/5)°C + 32","Q = m c ΔT","1 cal = 4.18 J"],
+  q:[N("0 °C in kelvin?",273,"K","K = °C + 273.",0.01),
+     N("100 °C in °F?",212,"°F","F = 9/5 × 100 + 32 = 212.",0.01),
+     N("m = 2 kg, c = 4200 J/kg·K, ΔT = 10 K. Heat required?",84000,"J","Q = 2 × 4200 × 10 = 84 000 J.",0.01),
+     M("Absolute zero is:",["0 °C","−273 °C","273 °C","−100 °C"],1,"It equals 0 K."),
+     T("Heat is a form of energy.",true,"It is measured in joules."),
+     M("1 calorie is about:",["4.18 J","41.8 J","0.418 J","418 J"],0,"The mechanical equivalent of heat.")]},
+ {id:"u8l2",t:"Thermal Expansion",p:["Solids expand on heating: linear (α), areal (β) and volumetric (γ).","β = 2α and γ = 3α.","Water is unusual: it has maximum density at 4 °C."],
+  f:["ΔL = L α ΔT","β = 2α","γ = 3α"],
+  q:[M("The relation among α, β and γ is:",["α : β : γ = 1 : 2 : 3","α : β : γ = 3 : 2 : 1","α = β = γ","α : β : γ = 1 : 3 : 2"],0,"β = 2α and γ = 3α."),
+     N("L = 1 m, α = 12 × 10⁻⁶ /°C, ΔT = 100 °C. Find ΔL in mm.",1.2,"mm","ΔL = 1 × 12×10⁻⁶ × 100 = 1.2 × 10⁻³ m = 1.2 mm.",0.01),
+     M("Water has maximum density at:",["0 °C","4 °C","10 °C","100 °C"],1,"Below 4 °C, water expands when cooled."),
+     T("Gaps are left between railway tracks to allow for expansion.",true,"Steel expands in summer."),
+     M("For the same ΔT, which expands the most?",["Solids","Liquids","Gases","All equally"],2,"Gases expand much more than liquids or solids."),
+     M("γ for a solid is related to α by:",["γ = α","γ = 2α","γ = 3α","γ = α/3"],2,"Volume expands in three directions.")]},
+ {id:"u8l3",t:"Laws of Thermodynamics",p:["Zeroth law: bodies each in equilibrium with a third are in equilibrium with each other.","First law: Q = ΔU + W. It is energy conservation.","Second law: heat does not flow from cold to hot by itself. No engine is 100% efficient.","Carnot efficiency depends only on the two temperatures (in kelvin)."],
+  f:["Q = ΔU + W","η = 1 − T₂ / T₁","Isothermal: T constant","Adiabatic: Q = 0"],
+  q:[M("The first law of thermodynamics is a statement of:",["conservation of energy","conservation of momentum","entropy increase","heat flow direction"],0,"Heat added = internal energy change + work done."),
+     N("Q = 100 J and W = 40 J. Find ΔU.",60,"J","ΔU = Q − W = 60 J.",0.01),
+     N("A Carnot engine works between 500 K and 300 K. Efficiency?",40,"%","η = 1 − 300/500 = 0.4 = 40%.",0.01),
+     M("The zeroth law is about:",["thermal equilibrium","entropy","energy conservation","absolute zero"],0,"It defines temperature."),
+     T("A heat engine can be 100% efficient.",false,"The second law forbids it."),
+     M("In an isothermal process:",["pressure is constant","volume is constant","temperature is constant","no heat is exchanged"],2,"Iso = same, thermal = temperature.")]}
+]},
+{id:"u9",t:"Surface Tension & Viscosity",s:"Why drops are round and honey is slow.",lessons:[
+ {id:"u9l1",t:"Surface Tension",p:["Surface tension S = F / L, the force per unit length along the surface. SI unit N/m.","Cohesion is attraction between like molecules. Adhesion is attraction between unlike molecules.","Drops are spherical because surface tension makes the surface area minimum.","Surface tension decreases as temperature rises. Detergents reduce it."],
+  f:["S = F / L","Unit: N/m"],
+  q:[M("The SI unit of surface tension is:",["N","N/m","N·m","J/s"],1,"Force per unit length."),
+     M("Liquid drops are spherical due to:",["gravity","surface tension","viscosity","density"],1,"A sphere has the least surface area for its volume."),
+     T("Surface tension increases when temperature increases.",false,"It decreases with temperature."),
+     M("Cohesion is the attraction between:",["molecules of the same substance","molecules of different substances","atoms of one molecule","ions only"],0,"Adhesion is for different substances."),
+     N("F = 0.02 N acts on a length L = 0.2 m. Find S.",0.1,"N/m","S = F/L = 0.02 / 0.2 = 0.1 N/m.",0.01),
+     M("Adding detergent to water:",["raises surface tension","lowers surface tension","does not change it","freezes it"],1,"That helps water wet and clean fabric.")]},
+ {id:"u9l2",t:"Capillarity",p:["Capillarity is the rise or fall of a liquid in a narrow tube.","Water wets glass and rises. Mercury does not wet glass and falls.","Height h ∝ 1 / radius: thinner tubes give bigger rise."],
+  f:["h = 2S cosθ / (r ρ g)","h ∝ 1 / r"],
+  q:[M("In a glass capillary tube, water:",["rises","falls","stays level","boils"],0,"Adhesion with glass is stronger than cohesion."),
+     M("In a glass capillary tube, mercury:",["rises","falls","stays level","freezes"],1,"Mercury does not wet glass."),
+     M("Rise of water is greater in a tube that is:",["wider","narrower","longer","thicker walled"],1,"h ∝ 1/r."),
+     T("Capillary rise is inversely proportional to the radius of the tube.",true,"Halve the radius and the height doubles."),
+     M("If the radius of the tube is halved, the rise becomes:",["half","same","double","four times"],2,"h ∝ 1/r."),
+     M("Which is an example of capillarity?",["Oil rising in a lamp wick","A stone falling","Sound echo","A spring oscillating"],0,"Liquid climbs through fine pores.")]},
+ {id:"u9l3",t:"Viscosity",p:["Viscosity is internal friction of a fluid. SI unit Pa·s (poise in CGS; 1 Pa·s = 10 poise).","Viscosity of liquids falls as temperature rises. For gases it rises.","Stokes' law: viscous drag on a small sphere F = 6πηrv.","At terminal velocity the net force is zero."],
+  f:["F = η A (dv/dx)","Stokes: F = 6πηrv","1 Pa·s = 10 poise"],
+  q:[M("As temperature rises, the viscosity of a liquid:",["increases","decreases","stays same","doubles"],1,"Molecules slip past each other more easily."),
+     M("The SI unit of viscosity is:",["N/m","Pa·s","poise only","N·s/m³"],1,"Pascal-second."),
+     M("As temperature rises, the viscosity of a gas:",["increases","decreases","stays same","drops to zero"],0,"More molecular collisions."),
+     T("Stokes' law gives the viscous force on a small sphere moving through a fluid.",true,"F = 6πηrv."),
+     M("At terminal velocity, the net force on a falling sphere is:",["maximum","zero","equal to its weight only","negative"],1,"Weight balances drag plus buoyancy."),
+     N("1 Pa·s equals how many poise?",10,"poise","1 Pa·s = 10 poise.",0.01)]}
+]}
+];
+var DATA={python:PY,physics:U};
+var $=function(i){return document.getElementById(i)},esc=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")};
+var KEY="polytech_quest_v1",GOAL=30,view="learn",Z=null,rst=false;
+var S={mode:"physics",xp:0,done:{},tday:"",tx:0,streak:0,last:"",dark:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function ds(o){return new Date(Date.now()-(o||0)*864e5).toISOString().slice(0,10)}
+function streak(){return(S.last===ds()||S.last===ds(1))?S.streak:0}
+function addXp(n){var d=ds();if(S.tday!==d){S.tday=d;S.tx=0}S.tx+=n;S.xp+=n;if(S.last!==d){S.streak=S.last===ds(1)?S.streak+1:1;S.last=d}save()}
+function units(){return DATA[S.mode]}
+function counts(){var t=0,d=0;units().forEach(function(u){u.lessons.forEach(function(l){t++;if(S.done[l.id])d++})});return[d,t]}
+function stopS(){try{AndroidSpeech.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}
+function speak(t){stopS();if(window.AndroidSpeech)AndroidSpeech.speak(JSON.stringify([t]),"en",1);else if(window.speechSynthesis)speechSynthesis.speak(new SpeechSynthesisUtterance(t))}
+window.__tts={ended:function(){},tr:function(){}};
+function show(h,v){view=v;$("screen").innerHTML=h;window.scrollTo(0,0);document.querySelectorAll("#tabbar button").forEach(function(b){b.classList.toggle("on",b.dataset.t===v||(v==="lesson"&&b.dataset.t==="learn"))});$("tabbar").style.display=v==="lesson"?"none":"flex"}
+function seg(){return'<div class="seg"><button class="'+(S.mode==="python"?"on":"")+'" onclick="setMode(\'python\')">🐍 Python</button><button class="'+(S.mode==="physics"?"on":"")+'" onclick="setMode(\'physics\')">⚛️ Physics</button></div>'}
+function setMode(m){S.mode=m;save();view==="formulas"?formulas():home()}
+function icon(i){return((S.mode==="physics"?PI:YI)[i])||"📘"}
+function home(){var c=counts(),tx=S.tday===ds()?S.tx:0,h='<div class="hd"><div><div class="sub">Polytechnic Year 1 · Mid-1</div><h1>Learn</h1></div><div class="pills"><span class="pill">🔥 '+streak()+'</span><span class="pill">⭐ '+S.xp+'</span></div></div>'+seg()+'<div class="card"><div class="row"><b>Daily goal</b><span>'+Math.min(tx,GOAL)+' / '+GOAL+' XP</span></div><div class="bar"><i style="width:'+Math.min(100,tx/GOAL*100)+'%"></i></div><div class="sub" style="margin-top:8px">'+c[0]+' of '+c[1]+' lessons complete</div></div>';
+ units().forEach(function(u,ui){h+='<div class="unit"><div class="ut">'+icon(ui)+' Unit '+(ui+1)+': '+esc(u.t)+'</div><div class="sub">'+esc(u.s)+'</div>';u.lessons.forEach(function(l,li){var d=S.done[l.id];h+='<button class="les" onclick="openL('+ui+','+li+')"><span class="dot'+(d?" ok":"")+'">'+(d?"✓":li+1)+'</span><span>'+esc(l.t)+'</span><span class="ch">›</span></button>'});h+="</div>"});
+ show(h,"learn")}
+function openL(ui,li){var l=units()[ui].lessons[li];Z={ui:ui,li:li};var h='<div class="hd"><button class="back" onclick="stopS();home()">‹ Back</button><button class="pill" onclick="readAll()">🔊 Read aloud</button></div><h1>'+esc(l.t)+"</h1>";l.p.forEach(function(p){h+='<div class="card">'+esc(p)+"</div>"});if(l.f&&l.f.length)h+='<div class="sub">Key formulas</div><div class="chips">'+l.f.map(function(f){return'<span class="chip">'+esc(f)+"</span>"}).join("")+"</div>";h+='<button class="btn pri" onclick="startQ()">Start quiz ('+l.q.length+" questions)</button>";show(h,"lesson")}
+function readAll(){speak(units()[Z.ui].lessons[Z.li].p.join(" "))}
+function startQ(){var l=units()[Z.ui].lessons[Z.li];stopS();Z.qs=l.q.slice().sort(function(){return Math.random()-.5});Z.i=0;Z.lives=3;Z.right=0;Z.ans=false;$("qz").hidden=false;qshow()}
+function qshow(){var q=Z.qs[Z.i],n=Z.qs.length,h='<div class="qtop"><button class="x" onclick="qclose()">✕</button><div class="bar"><i style="width:'+Z.i/n*100+'%"></i></div><span>'+"❤️".repeat(Z.lives)+'</span></div><div class="qb"><div class="qq">'+esc(q.q)+"</div>"+(q.c?"<pre>"+esc(q.c)+"</pre>":"");
+ if(q.k==="m")q.o.forEach(function(o,i){h+='<button class="opt" onclick="ans('+i+')">'+esc(o)+"</button>"});
+ else if(q.k==="t")h+='<button class="opt" onclick="ans(1)">True</button><button class="opt" onclick="ans(0)">False</button>';
+ else h+='<div class="nrow"><input id="ni" type="text" inputmode="decimal" placeholder="Type your answer"><span>'+esc(q.u||"")+'</span></div><button class="btn pri" onclick="ans()">Check</button>';
+ $("qz").innerHTML=h+'</div><div id="qf"></div>';Z.ans=false}
+function ans(v){if(Z.ans)return;var q=Z.qs[Z.i],ok;
+ if(q.k==="m")ok=v===q.a;else if(q.k==="t")ok=(v===1)===q.a;else{var x=parseFloat(($("ni").value||"").replace(",","."));if(isNaN(x))return;ok=Math.abs(x-q.a)<=q.tol*Math.max(1,Math.abs(q.a))}
+ Z.ans=true;if(ok)Z.right++;else Z.lives--;
+ if(q.k!=="n"){var ci=q.k==="m"?q.a:(q.a?0:1),pi=q.k==="m"?v:(v===1?0:1);document.querySelectorAll(".opt").forEach(function(b,i){b.disabled=true;if(i===ci)b.classList.add("ok");else if(i===pi)b.classList.add("bad")})}else $("ni").disabled=true;
+ var last=Z.lives<=0||Z.i>=Z.qs.length-1;
+ $("qf").innerHTML='<div class="fb'+(ok?"":" badf")+'"><b>'+(ok?"✅ Correct!":"❌ Not quite")+"</b><div>"+esc(q.e)+(ok||q.k!=="n"?"":"<br>Answer: "+q.a+" "+esc(q.u||""))+'</div><button class="btn pri" onclick="qnext()">'+(last?"Finish":"Continue")+"</button></div>"}
+function qnext(){if(Z.lives<=0||Z.i>=Z.qs.length-1)return qend();Z.i++;qshow()}
+function qend(){var l=units()[Z.ui].lessons[Z.li],n=Z.qs.length,win=Z.lives>0,xp=win?Z.right*10+(Z.lives===3?10:0):Z.right*2;addXp(xp);if(win)S.done[l.id]=1;save();
+ $("qz").innerHTML='<div class="qb center"><div class="big">'+(win?(Z.lives===3?"🏆":"🎉"):"💔")+"</div><h1>"+(win?"Lesson complete!":"Out of lives")+'</h1><div class="card">'+Z.right+" / "+n+" correct · +"+xp+' XP</div><button class="btn pri" onclick="startQ()">'+(win?"Practice again":"Try again")+'</button><button class="btn" onclick="qclose()">Back to lessons</button></div>'}
+function qclose(){$("qz").hidden=true;home()}
+function formulas(){var h='<div class="hd"><div><div class="sub">Quick revision</div><h1>Formulas</h1></div></div>'+seg();units().forEach(function(u,ui){h+='<div class="unit"><div class="ut">'+icon(ui)+" "+esc(u.t)+"</div>";u.lessons.forEach(function(l){if(l.f&&l.f.length)h+='<div class="card"><b>'+esc(l.t)+'</b><div class="chips">'+l.f.map(function(f){return'<span class="chip">'+esc(f)+"</span>"}).join("")+"</div></div>"});h+="</div>"});show(h,"formulas")}
+function theme(){document.documentElement.classList.toggle("dark",!!S.dark);try{AndroidBridge.setTheme(!!S.dark)}catch(e){}}
+function setDark(d){S.dark=d?1:0;save();theme()}
+function resetAll(){if(!rst){rst=true;$("rb").textContent="Tap again to erase everything";return}S.xp=0;S.done={};S.tx=0;S.streak=0;S.last="";save();rst=false;me()}
+function me(){rst=false;var cp=0,ct=0;["python","physics"].forEach(function(m){DATA[m].forEach(function(u){u.lessons.forEach(function(l){ct++;if(S.done[l.id])cp++})})});
+ show('<div class="hd"><h1>Me</h1></div><div class="card"><div class="rowx"><span>Total XP</span><b>'+S.xp+'</b></div><div class="rowx"><span>Day streak</span><b>'+streak()+'</b></div><div class="rowx"><span>Lessons done</span><b>'+cp+" / "+ct+'</b></div><div class="rowx"><span>Dark mode</span><input type="checkbox" '+(S.dark?"checked":"")+' onchange="setDark(this.checked)" style="width:22px;height:22px"></div></div><button class="btn" id="rb" style="color:var(--bad)" onclick="resetAll()">Reset progress</button><div class="sub center">Polytech Quest · Python + Physics</div>',"me")}
+window.__back=function(){if(!$("qz").hidden){qclose();return true}if(view!=="learn"){stopS();home();return true}return false};
+theme();home();
+</script></body></html>
